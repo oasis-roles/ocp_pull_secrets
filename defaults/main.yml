@@ -1,0 +1,6 @@
+ocp_pull_secrets_token_url: |-
+  https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+ocp_pull_secrets_api_url: |-
+  https://api.openshift.com/api/accounts_mgmt/v1/access_token
+ocp_pull_secrets_out_var: ocp_pull_secrets
+ocp_pull_secrets_no_log: true

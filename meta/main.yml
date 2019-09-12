@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Sean Myers
+  description: Get pull secrets for OpenShift Container Platform 4.x
+  company: Red Hat, Inc.
+  license: GPLv3
+  min_ansible_version: 2.7
+  platforms:
+    - name: EL
+      versions:
+        - 7
+
+  galaxy_tags:
+    - oasis
+
+dependencies: []
