@@ -1,0 +1,8 @@
+- name: cleanup
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Clean up generated output file
+      file:
+        state: absent
+        name: 'pull_secrets_output.json'

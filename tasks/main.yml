@@ -1,0 +1,37 @@
+- name: Convert offline token to access token
+  uri:
+    url: "{{ ocp_pull_secrets_token_url }}"
+    method: POST
+    body:
+      grant_type: refresh_token
+      client_id: cloud-services
+      refresh_token: "{{ ocp_pull_secrets_offline_token }}"
+    body_format: form-urlencoded
+  no_log: "{{ ocp_pull_secrets_no_log }}"
+  register: access_token_response
+  # Fail task if json is not returned, or if
+  # required key is not in json data returned.
+  failed_when: |-
+    access_token_response.json is undefined or
+    access_token_response.json.access_token is undefined
+
+- name: Get pull secrets using access token
+  uri:
+    url: "{{ ocp_pull_secrets_api_url }}"
+    method: POST
+    headers:
+      Accept: application/json
+      Authorization: Bearer {{ access_token_response.json.access_token }}
+  register: pull_secrets_response
+  no_log: "{{ ocp_pull_secrets_no_log }}"
+  failed_when: |-
+    pull_secrets_response.json is undefined or
+    pull_secrets_response.json.auths is undefined
+
+- name: Set pull secrets output fact
+  action: set_fact
+  no_log: "{{ ocp_pull_secrets_no_log }}"
+  # Additional auths are grafted in when the output fact is set here
+  args:
+    "{{ ocp_pull_secrets_out_var }}": "{{ pull_secrets_response.json |
+        combine({'auths': ocp_pull_secrets_additional_auths}, recursive=True) }}"

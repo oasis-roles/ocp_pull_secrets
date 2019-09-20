@@ -1,0 +1,51 @@
+- name: Get the pull secrets!
+  hosts: all
+  gather_facts: false
+  roles:
+    - ocp_pull_secrets
+  vars:
+    ocp_pull_secrets_offline_token: "{{ lookup('env', 'OCP_PULL_SECRETS_OFFLINE_TOKEN') }}"
+    ocp_pull_secrets_additional_auths:
+      example.com:
+        email: user@example.com
+        auth: testing_auth_key
+    # disable no_log in CI
+    ocp_pull_secrets_no_log: false
+  tasks:
+    # This is how the readme recommends consuming the output fact,
+    # so the tests are implemented in testinfra around this mechanism.
+    # The working dir for these files is the molecule scenario dir.
+    - name: Ensure output file does not exist
+      file:
+        state: absent
+        name: pull_secrets_output.json
+    - name: Write out pull secrets for verification
+      copy:
+        content: "{{ ocp_pull_secrets | to_json }}"
+        dest: pull_secrets_output.json
+
+# Idempotence examples used in the readme, should skip all tasks.
+# No assertions are made against them, but they will fail if they
+# aren't skipped due to the missing ocp_pull_secrets_offline_token var.
+- name: Skip getting the pull secrets based on output fact
+  hosts: all
+  gather_facts: false
+  vars:
+    ocp_pull_secrets_no_log: false
+  roles:
+    - name: ocp_pull_secrets
+      when: ocp_pull_secrets is undefined
+
+- name: Skip getting the pull secrets based on output file
+  hosts: all
+  gather_facts: false
+  vars:
+    ocp_pull_secrets_no_log: false
+  pre_tasks:
+    - name: Stat output file
+      stat:
+        path: pull_secrets_output.json
+      register: pull_secrets_file
+  roles:
+    - name: ocp_pull_secrets
+      when: not pull_secrets_file.stat.exists
