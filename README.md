@@ -19,7 +19,7 @@ this can be altered if needed; see the Optional Role Variables below.
 The resulting pull secrets are stored in an ansible fact for use in later
 plays, either in an OCP 4.x installation role or tasks. Note that because
 this role leaves it up to the calling user when and where (i.e. on which
-host) to generate the output fact, and makes no attempt at idempotence.
+host) to generate the output fact, it makes no attempt at idempotence.
 If writing the ansible fact out to a file, the `to_json` filter must be
 used. By default, the output ansible fact is `ocp_pull_secrets`, but this
 can be customized if needed.
